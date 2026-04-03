@@ -24,11 +24,24 @@ export default function CharacterSheet(){
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
-  const [equipment, setEquipment] = useState({
-    weapon: null,
-    armor: null,
-    accessory: null
-  })
+ interface EquipmentItem {
+  image?: string
+  name?: string
+  damage?: string
+  crit?: string
+  range?: string
+  type?: string
+}
+
+const [equipment, setEquipment] = useState<{
+  weapon: EquipmentItem | null
+  armor: EquipmentItem | null
+  accessory: EquipmentItem | null
+}>({
+  weapon: null,
+  armor: null,
+  accessory: null
+})
 
   // 🔥 NOVO: dados editáveis do item
   const [editItem, setEditItem] = useState<any>(null)
