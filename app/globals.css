@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* 🌍 ROOT */
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+/* 🧱 BASE */
+body {
+  background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 🔴 GLOW */
+.red-glow {
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+}
+
+/* ========================= */
+/* 🎬 ANIMAÇÕES BASE */
+/* ========================= */
+
+/* 💥 SHAKE (dano) */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+/* 🌫️ FADE */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ========================= */
+/* 😈 STATUS VISUAIS (PREPARO) */
+/* ========================= */
+
+/* 🩸 LOW HP (batimento vermelho) */
+@keyframes pulseRed {
+  0% { box-shadow: 0 0 10px rgba(255,0,0,0.3); }
+  50% { box-shadow: 0 0 25px rgba(255,0,0,0.8); }
+  100% { box-shadow: 0 0 10px rgba(255,0,0,0.3); }
+}
+
+.low-hp {
+  animation: pulseRed 1s infinite;
+}
+
+/* 🧠 INSANIDADE (distorção leve) */
+@keyframes insanity {
+  0% { transform: skew(0deg); }
+  25% { transform: skew(0.5deg); }
+  50% { transform: skew(-0.5deg); }
+  75% { transform: skew(0.3deg); }
+  100% { transform: skew(0deg); }
+}
+
+.insanity {
+  animation: insanity 0.2s infinite;
+}
+
+/* ⚡ ENERGIA BAIXA (piscar) */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.low-energy {
+  animation: blink 1s infinite;
+}
+
+/* 🩸 OVERLAY DE SANGUE (usaremos depois) */
+.blood-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,0,0,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* 🌫️ GLITCH FUTURO (já preparado) */
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(1px, -2px); }
+  100% { transform: translate(0); }
+}
+
+.glitch {
+  animation: glitch 0.2s infinite;
+}
