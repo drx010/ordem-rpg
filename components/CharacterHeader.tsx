@@ -325,9 +325,33 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
       </div>
 
       {/* ⚡ ENERGIA */}
-      <p className="text-yellow-400 text-sm">Energia {energy}/{energyMax}</p>
-      <Bar value={energy} max={energyMax} color="gold"/>
-      <div className="flex gap-2 mt-2">
+<p className="text-yellow-400 text-sm">
+  Energia {energy}/{energyMax}
+</p>
+
+{isMaster && (
+  <input
+    type="number"
+    value={energyMax}
+    onChange={(e)=>{
+      const value = Number(e.target.value)
+      setEnergyMax(value)
+
+      if(selectedId){
+        supabase.from("characters")
+          .update({ energy_max: value })
+          .eq("id", selectedId)
+
+        updateHUD({ energy_max: value })
+      }
+    }}
+    className="mb-2 w-20 bg-black border border-yellow-800 p-1 text-xs"
+  />
+)}
+
+<Bar value={energy} max={energyMax} color="yellow"/>
+
+      <div className="flex gap-2 mt-2 mb-3">
         <ControlButton onClick={()=>changeEnergy(-5)} color="bg-yellow-900">-5</ControlButton>
         <ControlButton onClick={()=>changeEnergy(-1)} color="bg-yellow-700">-1</ControlButton>
         <ControlButton onClick={()=>changeEnergy(1)} color="bg-green-700">+1</ControlButton>
@@ -335,5 +359,6 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
       </div>
 
     </div>
+
   )
 }
