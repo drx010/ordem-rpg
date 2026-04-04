@@ -360,21 +360,25 @@ async function updateCharacterField(field:string, value:number){
     `}/>
 
     {/* 🎬 IMAGEM */}
-    <div className={`
-      w-full h-full overflow-hidden rounded-lg
-      ${selectedCharacter?.sanity < selectedCharacter?.sanity_max * 0.3 ? "glitch" : ""}
-    `}>
-      {selectedCharacter?.image ? (
-        <img 
-          src={selectedCharacter.image}
-          className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center bg-black">
-          PERSONAGEM
-        </div>
-      )}
+<div
+  className={`
+    w-full h-full overflow-hidden rounded-lg
+    ${selectedCharacter?.sanity < selectedCharacter?.sanity_max * 0.3 ? "glitch" : ""}
+  `}
+>
+  {selectedCharacter?.image ? (
+    <div className="w-full h-full bg-black flex items-center justify-center">
+      <img
+        src={selectedCharacter.image}
+        className="max-h-full max-w-full object-contain transition duration-500"
+      />
     </div>
+  ) : (
+    <div className="w-full h-full flex items-center justify-center bg-black">
+      PERSONAGEM
+    </div>
+  )}
+</div>
 
     {/* 🌫️ OVERLAY */}
     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"/>
