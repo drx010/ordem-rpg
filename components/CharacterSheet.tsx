@@ -311,15 +311,7 @@ async function updateCharacterField(field:string, value:number){
       isMaster={isMaster} 
       onSelect={setSelectedCharacter}
     />
-
-
-
-      <CharacterHeader 
-        isMaster={isMaster} 
-        onSelect={setSelectedCharacter}
-      />
-
-      <div className="grid grid-cols-3 gap-6 mt-6">
+    <div className="grid grid-cols-3 gap-6 mt-6">
 
         <div className="bg-zinc-900 p-4 rounded-lg border border-red-900">
         <SkillsPanel 
@@ -704,6 +696,7 @@ async function updateCharacterField(field:string, value:number){
 </div>
 
       </div>
+      
       {/* 🎲 Sala Multiplayer */}
 <div className="mb-4 flex gap-2 items-center">
   <input
