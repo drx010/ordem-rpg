@@ -107,3 +107,23 @@ body {
 .glitch {
   animation: glitch 0.2s infinite;
 }
+body {
+  background-color: #050505;
+  background-image:
+    radial-gradient(rgba(255,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,0,0,0.05), transparent);
+  background-size: 4px 4px, 100% 100%;
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,0,0,0.03),
+    rgba(255,0,0,0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+}

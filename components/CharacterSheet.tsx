@@ -390,7 +390,14 @@ async function updateCharacterField(field:string, value:number){
   ARQUIVO CONFIDENCIAL
 </div>
 
-      <h2 className="text-red-600 text-2xl tracking-widest font-bold uppercase">
+      <h2 className="
+  text-red-500 
+  text-3xl 
+  tracking-[6px] 
+  font-extrabold 
+  uppercase
+  drop-shadow-[0_0_12px_rgba(255,0,0,0.7)]
+">
         {selectedCharacter?.name || "Sem nome"}
       </h2>
 
@@ -428,7 +435,14 @@ async function updateCharacterField(field:string, value:number){
   </div>
 
   {/* Barra */}
-  <div className="h-2 bg-red-950/40 border border-red-900 overflow-hidden">
+  <div className="
+  h-3 
+  bg-black 
+  border border-red-800 
+  relative 
+  overflow-hidden
+">
+  <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(90deg,transparent,transparent_8px,rgba(255,0,0,0.4)_9px)]"/>
     <div
       className="h-full bg-red-700 transition-all duration-500"
       style={{
