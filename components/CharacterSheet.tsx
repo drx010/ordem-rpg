@@ -288,15 +288,16 @@ async function updateCharacterField(field:string, value:number){
   }
 
   return(
-  <div className="
-    min-h-screen 
-    p-6 
-    bg-[url('/bg-dark-texture.jpg')] 
-    bg-cover 
-    bg-center 
-    relative
-  ">
-
+  <div
+    className="min-h-screen relative overflow-hidden">
+    {/* 🎨 FUNDO GLOBAL */}
+<div className="absolute inset-0 z-0 pointer-events-none">
+  <img 
+    src="/background.jpg"
+    className="w-full h-full object-cover opacity-20"
+  />
+</div>
+<div className="relative z-10 p-6">
     {/* 🔓 BOTÃO LOGOUT */}
     <div className="flex justify-end mb-4">
       <button
@@ -313,7 +314,7 @@ async function updateCharacterField(field:string, value:number){
     />
     <div className="grid grid-cols-3 gap-6 mt-6">
 
-        <div className="bg-zinc-900 p-4 rounded-lg border border-red-900">
+        <div className="bg-zinc-900/70 backdrop-blur-sm p-4 rounded-lg border border-red-900">
         <SkillsPanel 
   onRoll={handleRoll}
   characterId={selectedCharacter?.id}
@@ -324,7 +325,7 @@ async function updateCharacterField(field:string, value:number){
 {/* 🧍 PERSONAGEM */}
 <div className={`
   relative
-  bg-black
+  bg-black/70 backdrop-blur-sm
   p-6
   border border-red-900
   shadow-[0_0_40px_rgba(255,0,0,0.15)]
@@ -511,7 +512,7 @@ async function updateCharacterField(field:string, value:number){
 {/* INVENTÁRIO */}
 <div className="absolute inset-0 pointer-events-none opacity-10 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,0,0,0.2)_3px)]"/>
 <div className="
-  bg-gradient-to-b from-zinc-950 to-black
+  bg-gradient-to-b from-zinc-950/80 to-black/80 backdrop-blur-sm
   p-5
   rounded-2xl
   border-2 border-red-800
@@ -744,7 +745,7 @@ async function updateCharacterField(field:string, value:number){
 {/* 📜 Histórico */}
 <DiceLog logs={logs} />
    
-   </div>
-
+    </div>
+  </div>
   )
 }
