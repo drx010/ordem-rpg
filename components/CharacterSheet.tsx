@@ -326,19 +326,21 @@ async function updateCharacterField(field:string, value:number){
 {/* 🧍 PERSONAGEM */}
 <div className={`
   relative
- bg-black/70 backdrop-blur-sm
-border border-sky-800
-shadow-[0_0_12px_rgba(56,189,248,0.6)]
+  p-6
   flex flex-col items-center
   min-h-[650px]
   overflow-hidden
+  bg-transparent
+  border-0
+  ring-0
+  outline-none
+  shadow-none
   ${shake ? "animate-[shake_0.3s]" : ""}
   ${selectedCharacter?.sanity < selectedCharacter?.sanity_max * 0.3 ? "insanity" : ""}
-  min-h-[600px]
 `}>
-  
+
   {/* MOLDURA INTERNA */}
-<div className="absolute inset-2 border border-sky-950 pointer-events-none" />
+<div className="absolute pointer-events-none" />
 
   <div className="relative w-124 h-178">
 
@@ -368,14 +370,14 @@ shadow-[0_0_12px_rgba(56,189,248,0.6)]
   `}
 >
   {selectedCharacter?.image ? (
-    <div className="w-full h-full bg-black flex items-center justify-center">
+    <div className="w-full h-full bg-transparent flex items-center justify-center">
       <img
         src={selectedCharacter.image}
         className="max-h-full max-w-full object-contain transition duration-500"
       />
     </div>
   ) : (
-    <div className="w-full h-full flex items-center justify-center bg-black">
+    <div className="w-full h-full flex items-center justify-center bg-transparent">
       PERSONAGEM
     </div>
   )}
