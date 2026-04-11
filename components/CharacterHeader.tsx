@@ -45,17 +45,15 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
   },[user])
 
   async function loadCharacters(){
-    if(!user) return
+  if(!user) return
 
-    let query = supabase.from("characters").select("*")
+  const { data } = await supabase
+    .from("characters")
+    .select("*")
+    .order("id",{ascending:false})
 
-    if(!isMaster){
-      query = query.eq("user_id", user.id)
-    }
-
-    const { data } = await query.order("id",{ascending:false})
-    setCharacters(data || [])
-  }
+  setCharacters(data || [])
+}
 
   function selectCharacter(char:any){
     setSelectedId(char.id)
