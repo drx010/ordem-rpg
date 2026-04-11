@@ -5,7 +5,7 @@ export default function DiceLog({ logs }:{ logs:any[] }){
   return(
     <div>
 
-      <h2 className="text-red-500 mb-2">Rolagens</h2>
+      <h2 className="text-sky-500 mb-2">Rolagens</h2>
 
       {logs.length === 0 && (
         <p className="opacity-50 text-sm">Nenhuma rolagem ainda...</p>
@@ -14,9 +14,9 @@ export default function DiceLog({ logs }:{ logs:any[] }){
       <div className="flex flex-col gap-1 text-sm">
 
         {logs.map((roll, index)=>(
-          <div key={index} className="bg-black p-2 rounded border border-red-800">
+          <div key={index} className="bg-black p-2 rounded border border-sky-800">
 
-            <p className="text-red-400">
+            <p className="text-sky-400">
               🎲 {roll.formula}
             </p>
 

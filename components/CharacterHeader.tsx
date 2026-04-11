@@ -234,7 +234,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
   }
 
   return(
-    <div className={`bg-zinc-900 p-4 rounded-lg border border-red-900 ${flash ? "bg-red-900/40" : ""}`}>
+    <div className={`bg-zinc-900 p-4 rounded-lg border border-sky-900 ${flash ? "bg-sky-900/40" : ""}`}>
 
       <audio ref={hitSound} src="/hit.mp3"/>
       <audio ref={healSound} src="/heal.mp3"/>
@@ -244,7 +244,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
         {characters.map((char)=>(
           <div key={char.id} onClick={()=>selectCharacter(char)}
             className={`p-2 border cursor-pointer text-sm ${
-              selectedId===char.id?"border-red-500":"border-zinc-700"
+              selectedId===char.id?"border-sky-500":"border-zinc-700"
             }`}>
             {char.name}
           </div>
@@ -267,7 +267,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
         Salvar personagem
       </button>
       {/* ❤️ HP */}
-      <p className="text-red-400 text-sm">HP {hp}/{hpMax}</p>
+      <p className="text-sky-400 text-sm">HP {hp}/{hpMax}</p>
       {isMaster && (
   <input
     type="number"
@@ -284,13 +284,13 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
         updateHUD({ hp_max: value })
       }
     }}
-    className="mb-2 w-20 bg-black border border-red-800 p-1 text-xs"
+    className="mb-2 w-20 bg-black border border-sky-800 p-1 text-xs"
   />
 )}
       <Bar value={hp} max={hpMax} color="red"/>
       <div className="flex gap-2 mt-2 mb-3">
-        <ControlButton onClick={()=>changeHp(-5)} color="bg-red-900">-5</ControlButton>
-        <ControlButton onClick={()=>changeHp(-1)} color="bg-red-700">-1</ControlButton>
+        <ControlButton onClick={()=>changeHp(-5)} color="bg-sky-900">-5</ControlButton>
+        <ControlButton onClick={()=>changeHp(-1)} color="bg-sky-700">-1</ControlButton>
         <ControlButton onClick={()=>changeHp(1)} color="bg-green-700">+1</ControlButton>
         <ControlButton onClick={()=>changeHp(5)} color="bg-green-900">+5</ControlButton>
       </div>

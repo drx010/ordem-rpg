@@ -30,9 +30,9 @@ export default function DiceRoller({ onRoll }:{ onRoll:(roll:any)=>void }){
   }
 
   return(
-    <div className="bg-zinc-900 p-4 rounded border border-red-900 mt-4">
+    <div className="bg-zinc-900 p-4 rounded border border-sky-900 mt-4">
 
-      <h2 className="mb-2 text-lg text-red-500">🎲 Dados</h2>
+      <h2 className="mb-2 text-lg text-sky-500">🎲 Dados</h2>
 
       <div className="flex gap-2 mb-2">
         <input type="number" value={quantity} onChange={(e)=>setQuantity(Number(e.target.value))}/>
@@ -42,7 +42,7 @@ export default function DiceRoller({ onRoll }:{ onRoll:(roll:any)=>void }){
         <input type="number" value={bonus} onChange={(e)=>setBonus(Number(e.target.value))}/>
       </div>
 
-      <button onClick={rollDice} className="bg-red-600 px-3 py-1">
+      <button onClick={rollDice} className="bg-sky-600 px-3 py-1">
         Rolar
       </button>
 

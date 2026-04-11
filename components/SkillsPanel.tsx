@@ -141,24 +141,34 @@ export default function SkillsPanel({
   }
 
   return (
-    <div
-  className="
-    bg-black/95
-    border border-red-800
-    shadow-[0_0_25px_rgba(255,0,0,0.15)]
-    rounded-sm
-    p-4
-  "
->
+  <div className="
+    relative
+    bg-black/70
+    backdrop-blur-md
+    border border-sky-900/60
+    p-5
+    rounded-md
+    shadow-[0_0_12px_rgba(56,189,248,0.6)]
+    overflow-hidden
+  ">
 
-      <h2 className="mb-4 text-xl tracking-widest uppercase text-red-600 border-b border-red-900 pb-1">
+      <h2 className="
+  text-[11px]
+  tracking-[4px]
+  uppercase
+  text-sky-500
+  mb-4
+  pb-2
+  border-b border-sky-900
+  relative
+">
   PERÍCIAS
 </h2>
 
       {skills.map((group) => (
         <div key={group.attribute} className="mb-4">
 
-          <h3 className="text-sm tracking-widest mb-2 text-red-500 border-l-4 border-red-700 pl-2"> 
+          <h3 className="text-sm tracking-widest mb-2 text-sky-400 border-l-4 border-sky-700 pl-2">
             {group.attribute}
           </h3>
 
@@ -174,15 +184,17 @@ export default function SkillsPanel({
 
             return (
               <div
-                key={skill}
-                className="
-  flex justify-between items-center
-  border-b border-red-950
-  py-1.5
-  gap-2
-  hover:bg-red-950/30
-  transition
-"
+  key={skill}
+  className="
+    flex justify-between items-center
+    text-xs
+    py-1 px-2
+    border-b border-zinc-800
+    hover:bg-zinc-900/50
+    transition-all
+    cursor-pointer
+  "
+
               >
 
                 {/* NOME */}
@@ -196,12 +208,12 @@ export default function SkillsPanel({
                   className="
   w-12
   bg-black
-  border border-red-800
+  border border-sky-800
   text-center
   text-xs
   rounded-sm
   focus:outline-none
-  focus:border-red-500
+  focus:border-sky-500
 "
                 />
 
@@ -219,10 +231,10 @@ export default function SkillsPanel({
                 <button
                   onClick={() => rollDice(skill)}
                   className={`
-  text-red-600 text-lg transition
+  text-sky-600 text-lg transition
   ${isRolling
     ? "animate-spin scale-125"
-    : "hover:text-red-400 hover:scale-110"}
+    : "hover:text-sky-400 hover:scale-110"}
 `}
                 >
                   🎲
