@@ -10,7 +10,6 @@ const io = new Server(httpServer, {
 })
 
 io.on("connection", (socket) => {
-  console.log("Jogador conectado")
 
   socket.on("joinRoom", (roomCode) => {
     socket.join(roomCode)
@@ -18,13 +17,15 @@ io.on("connection", (socket) => {
   })
 
   socket.on("rollDice", ({ roomCode, data }) => {
+    console.log("Recebi rollDice:", roomCode, data)
     io.to(roomCode).emit("diceRolled", data)
   })
+
+})
 
   socket.on("disconnect", () => {
     console.log("Jogador saiu")
   })
-})
 
 httpServer.listen(3001, () => {
   console.log("Servidor rodando na porta 3001")

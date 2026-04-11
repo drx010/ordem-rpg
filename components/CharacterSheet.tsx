@@ -97,6 +97,8 @@ useEffect(() => {
   function joinRoom() {
   if (!roomCode) return
 
+  console.log("Entrando na sala:", roomCode)
+
   socket.emit("joinRoom", roomCode)
   setConnectedRoom(roomCode)
 }
@@ -243,8 +245,7 @@ async function updateCharacterField(field:string, value:number){
       setSelectedItem(data[0])
     }
   }
-  function handleRoll(roll: any){
-
+  function handleRoll(roll:any){
   const data = {
     formula: roll.formula,
     rolls: roll.rolls,
@@ -253,10 +254,10 @@ async function updateCharacterField(field:string, value:number){
   }
 
   if(connectedRoom){
-    // só envia — NÃO adiciona localmente
+    // Só envia para sala
     socket.emit("rollDice", { roomCode: connectedRoom, data })
   } else {
-    // se não estiver em sala, adiciona local
+    // Se não estiver em sala, adiciona localmente
     setLogs(prev => [data, ...prev])
   }
 }
@@ -744,7 +745,7 @@ async function updateCharacterField(field:string, value:number){
 
 {/* 📜 Histórico */}
 <DiceLog logs={logs} />
-   
+  
     </div>
   </div>
   )
