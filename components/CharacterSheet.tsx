@@ -326,10 +326,10 @@ async function updateCharacterField(field:string, value:number){
 {/* 🧍 PERSONAGEM */}
 <div className={`
   relative
-  bg-black/70 backdrop-blur-sm
-  p-6
-  border border-red-900
-  shadow-[0_0_40px_rgba(255,0,0,0.15)]
+ bg-zinc-900/70
+ backdrop-blur-md
+ border border-zinc-700
+ shadow-xl
   flex flex-col items-center
   min-h-[650px]
   overflow-hidden
@@ -436,17 +436,17 @@ async function updateCharacterField(field:string, value:number){
     </div>
   </div>
 
-  {/* Barra */}
   <div className="
-  h-3 
-  bg-black 
-  border border-red-800 
-  relative 
+  h-4
+  bg-zinc-950
+  border border-red-900
+  relative
   overflow-hidden
+  rounded-sm
 ">
   <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(90deg,transparent,transparent_8px,rgba(255,0,0,0.4)_9px)]"/>
     <div
-      className="h-full bg-red-700 transition-all duration-500"
+  className="h-full bg-red-700 transition-all duration-500"
       style={{
         width: `${(selectedCharacter?.hp / selectedCharacter?.hp_max) * 100}%`
       }}
@@ -456,7 +456,7 @@ async function updateCharacterField(field:string, value:number){
 </div>
 
       {/* 🧠 SANIDADE */}
-      <div className="mb-1 h-2 bg-zinc-800 rounded overflow-hidden">
+      <div className="mb-2 h-3 bg-zinc-950 border border-blue-900 overflow-hidden rounded-sm relative">
         <div className={`
           h-full bg-blue-500 transition-all
           ${selectedCharacter?.sanity < selectedCharacter?.sanity_max * 0.3 ? "animate-pulse" : ""}
@@ -466,7 +466,7 @@ async function updateCharacterField(field:string, value:number){
       </div>
 
       {/* ⚡ ENERGIA */}
-      <div className="h-2 bg-zinc-800 rounded overflow-hidden">
+      <div className="h-3 bg-zinc-950 border border-yellow-900 overflow-hidden rounded-sm relative">
         <div className={`
           h-full bg-yellow-400 transition-all
           ${selectedCharacter?.energy < selectedCharacter?.energy_max * 0.3 ? "low-energy" : ""}
