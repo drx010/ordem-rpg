@@ -11,6 +11,8 @@ const io = new Server(httpServer, {
 
 io.on("connection", (socket) => {
 
+  console.log("Novo jogador conectado")
+
   socket.on("joinRoom", (roomCode) => {
     socket.join(roomCode)
     console.log("Entrou na sala:", roomCode)
@@ -21,12 +23,14 @@ io.on("connection", (socket) => {
     io.to(roomCode).emit("diceRolled", data)
   })
 
-})
-
   socket.on("disconnect", () => {
     console.log("Jogador saiu")
   })
 
-httpServer.listen(3001, () => {
-  console.log("Servidor rodando na porta 3001")
+})
+
+const PORT = process.env.PORT || 3001
+
+httpServer.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT)
 })
