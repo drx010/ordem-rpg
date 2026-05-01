@@ -16,6 +16,10 @@ export default function CharacterSheet(){
   const [history, setHistory] = useState("")
   const [notes, setNotes] = useState("")
 
+ const [defensePassive, setDefensePassive] = useState<number>(0)
+ const [defenseCounter, setDefenseCounter] = useState<string>("0")
+ const [defenseDodge, setDefenseDodge] = useState<string>("0")
+
   const [prevHP, setPrevHP] = useState<number | null>(null)
   const [damageFlash, setDamageFlash] = useState(false)
   const [shake, setShake] = useState(false)
@@ -75,6 +79,9 @@ useEffect(() => {
 
   setHistory(selectedCharacter.history || "")
   setNotes(selectedCharacter.notes || "")
+  setDefensePassive(selectedCharacter.defense_passive || 0)
+  setDefenseCounter(selectedCharacter.defense_counter || 0)
+  setDefenseDodge(selectedCharacter.defense_dodge || 0)
 
     if(prevHP !== null && selectedCharacter.hp < prevHP){
       setDamageFlash(true)
@@ -102,6 +109,13 @@ useEffect(() => {
   socket.emit("joinRoom", roomCode)
   setConnectedRoom(roomCode)
 }
+ useEffect(() => {
+
+  if(!selectedCharacter) return
+
+  saveDefenseValues()
+
+}, [defensePassive, defenseCounter, defenseDodge])
 
   async function loadInventory(characterId:string){
     const { data } = await supabase
@@ -283,7 +297,23 @@ async function updateCharacterField(field:string, value:number){
     console.error("Erro ao salvar:", error)
   }
 }
+async function saveDefenseValues() {
 
+  if(!selectedCharacter) return
+
+  const { error } = await supabase
+    .from("characters")
+    .update({
+      defense_passive: defensePassive,
+      defense_counter: defenseCounter,
+      defense_dodge: defenseDodge
+    })
+    .eq("id", selectedCharacter.id)
+
+  if(error){
+    console.error("Erro ao salvar defesas:", error)
+  }
+}
   if(!user){
     return <Auth />
   }
@@ -477,6 +507,99 @@ async function updateCharacterField(field:string, value:number){
       </div>
 
     </div>
+
+{/* 🛡️ DEFESAS */}
+<div className="mt-6 relative">
+
+  {/* LINHA DECORATIVA */}
+  <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-red-700 to-transparent"/>
+
+  <h3 className="text-red-600 text-xs tracking-[4px] text-center mt-4 mb-3">
+    MODIFICADORES DE DEFESA
+  </h3>
+
+  <div className="grid grid-cols-3 gap-4">
+
+    {/* PASSIVA */}
+    <div className="relative group">
+      <div className="absolute inset-0 rounded-xl bg-red-700/10 blur-md group-hover:bg-red-700/20 transition"/>
+      
+      <div className="relative bg-black border border-red-800 rounded-xl p-4 text-center
+        group-hover:border-red-500 transition-all duration-300">
+
+        <p className="text-[10px] tracking-widest text-red-400 uppercase mb-2">
+          Defesa Passiva
+        </p>
+
+        <input
+          type="number"
+          value={defensePassive}
+          onChange={(e)=>setDefensePassive(Number(e.target.value))}
+          className="w-full bg-transparent text-center text-3xl font-bold text-red-500
+            outline-none appearance-none"
+        />
+
+      </div>
+    </div>
+
+    {/* CONTRA-ATAQUE */}
+    <div className="relative group">
+      <div className="absolute inset-0 rounded-xl bg-yellow-600/10 blur-md group-hover:bg-yellow-600/20 transition"/>
+      
+      <div className="relative bg-black border border-yellow-700 rounded-xl p-4 text-center
+        group-hover:border-yellow-400 transition-all duration-300">
+
+        <p className="text-[10px] tracking-widest text-yellow-400 uppercase mb-2">
+          Contra-Ataque
+        </p>
+
+        <input
+  type="text"
+  value={defenseCounter}
+  onChange={(e)=>{
+    const value = e.target.value
+
+    // permite apenas + - e números
+    if (/^[+-]?\d*$/.test(value)) {
+      setDefenseCounter(value)
+    }
+  }}
+  className="w-full bg-transparent text-center text-3xl font-bold text-yellow-400
+    outline-none"
+/>
+      </div>
+    </div>
+
+    {/* ESQUIVA */}
+    <div className="relative group">
+      <div className="absolute inset-0 rounded-xl bg-blue-600/10 blur-md group-hover:bg-blue-600/20 transition"/>
+      
+      <div className="relative bg-black border border-blue-700 rounded-xl p-4 text-center
+        group-hover:border-blue-400 transition-all duration-300">
+
+        <p className="text-[10px] tracking-widest text-blue-400 uppercase mb-2">
+          Esquiva
+        </p>
+
+        <input
+  type="text"
+  value={defenseDodge}
+  onChange={(e)=>{
+    const value = e.target.value
+
+    if (/^[+-]?\d*$/.test(value)) {
+      setDefenseDodge(value)
+    }
+  }}
+  className="w-full bg-transparent text-center text-3xl font-bold text-blue-400
+    outline-none"
+/>
+
+      </div>
+    </div>
+
+  </div>
+</div>
 
     {/* 📖 HISTÓRIA */}
 <div className="w-full mt-4">
