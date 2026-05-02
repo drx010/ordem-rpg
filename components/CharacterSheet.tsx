@@ -9,6 +9,19 @@ import CharacterHeader from "./CharacterHeader"
 import DiceLog from "./DiceLog"
 import SkillsPanel from "./SkillsPanel"
 
+type Ritual = {
+  id: string
+  name: string
+  description: string
+  element: string
+  execution: string
+  range: string
+  target: string
+  duration: string
+  resistance: string
+  image: string
+}
+
 export default function CharacterSheet(){
 
   const [user, setUser] = useState<any>(null)
@@ -23,6 +36,8 @@ export default function CharacterSheet(){
   const [prevHP, setPrevHP] = useState<number | null>(null)
   const [damageFlash, setDamageFlash] = useState(false)
   const [shake, setShake] = useState(false)
+  
+  const [rituals, setRituals] = useState<Ritual[]>([])
 
   const [inventory, setInventory] = useState<any[]>(Array(12).fill(null))
   const [selectedItem, setSelectedItem] = useState<any>(null)
@@ -82,6 +97,7 @@ useEffect(() => {
   setDefensePassive(selectedCharacter.defense_passive || 0)
   setDefenseCounter(selectedCharacter.defense_counter || 0)
   setDefenseDodge(selectedCharacter.defense_dodge || 0)
+  setRituals(selectedCharacter.rituals || [])
 
     if(prevHP !== null && selectedCharacter.hp < prevHP){
       setDamageFlash(true)
@@ -116,6 +132,24 @@ useEffect(() => {
   saveDefenseValues()
 
 }, [defensePassive, defenseCounter, defenseDodge])
+
+useEffect(() => {
+  if (!selectedCharacter) return
+
+  setHistory(selectedCharacter.history || "")
+  setNotes(selectedCharacter.notes || "")
+
+  setRituals(selectedCharacter.rituals || [])
+
+}, [selectedCharacter])
+
+useEffect(() => {
+
+  if(!selectedCharacter) return
+
+  saveRituals(rituals)
+
+}, [rituals])
 
   async function loadInventory(characterId:string){
     const { data } = await supabase
@@ -317,6 +351,239 @@ async function saveDefenseValues() {
   if(!user){
     return <Auth />
   }
+
+  async function saveRituals(updatedRituals:any[]) {
+
+  if(!selectedCharacter) return
+
+  const { error } = await supabase
+    .from("characters")
+    .update({
+      rituals: updatedRituals
+    })
+    .eq("id", selectedCharacter.id)
+
+  if(error){
+    console.error("Erro ao salvar rituais:", error)
+  }
+
+}
+
+async function loadRituals(characterId: string){
+
+  const { data, error } = await supabase
+    .from("rituals")
+    .select("*")
+    .eq("character_id", characterId)
+
+  if(error){
+    console.error("Erro ao carregar rituais:", error)
+    return
+  }
+
+  setRituals(data || [])
+}
+
+async function addRitual(){
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if(!user) return
+
+  const { data, error } = await supabase
+    .from("rituals")
+    .insert([{
+      name: "",
+      description: "",
+      element: "",
+      execution: "",
+      range: "",
+      target: "",
+      duration: "",
+      resistance: "",
+      image: "",
+      character_id: selectedCharacter?.id,
+      user_id: user?.id,
+    }])
+    .select()
+    .single()
+
+  if(error){
+    console.error("Erro ao criar ritual:", error.message)
+    return
+  }
+
+  setRituals([...rituals, data])
+}
+
+type RitualField =
+  | "name"
+  | "description"
+  | "element"
+  | "execution"
+  | "range"
+  | "target"
+  | "duration"
+  | "resistance"
+  | "image"
+
+async function updateRitualField(
+  index:number,
+  field:RitualField,
+  value:any
+){
+
+  const ritual = rituals[index]
+  if(!ritual?.id) return
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if(!user) return
+
+  const { error } = await supabase
+    .from("rituals")
+    .update({ [field]: value })
+    .eq("id", ritual.id)
+    .eq("user_id", user.id)
+
+  if(error){
+    console.error("Erro ao atualizar ritual:", error.message)
+    return
+  }
+
+  const updated = [...rituals]
+  updated[index] = {
+    ...updated[index],
+    [field]: value
+  }
+
+  setRituals(updated)
+}
+
+async function uploadRitualImage(index: number, file: File) {
+
+  const ritual = rituals[index]
+  if (!ritual?.id) return
+
+  const fileExt = file.name.split(".").pop()
+  const fileName = `${ritual.id}-${Date.now()}.${fileExt}`
+  const filePath = `rituals/${fileName}`
+
+  // 🔥 Upload para o bucket
+  const { error: uploadError } = await supabase.storage
+    .from("ritual-images")
+    .upload(filePath, file, {
+      upsert: true
+    })
+
+  if (uploadError) {
+    console.error("Erro upload:", uploadError)
+    return
+  }
+
+  // 🔥 Pega URL pública
+  const { data } = supabase.storage
+    .from("ritual-images")
+    .getPublicUrl(filePath)
+
+  const publicUrl = data.publicUrl
+
+  // 🔥 Atualiza no banco
+  const { error: dbError } = await supabase
+    .from("rituals")
+    .update({ image: publicUrl })
+    .eq("id", ritual.id)
+
+  if (dbError) {
+    console.error("Erro salvar URL:", dbError)
+    return
+  }
+
+  // 🔥 Atualiza estado local
+  const updated = [...rituals]
+  updated[index].image = publicUrl
+  setRituals(updated)
+}
+
+function updateRitualLocal(index:number, field:string, value:any){
+
+  const updated = [...rituals]
+
+  updated[index] = {
+    ...updated[index],
+    [field]: value
+  }
+
+  setRituals(updated)
+}
+
+async function saveRitualField(index: number,field: keyof Ritual){
+
+  const ritual = rituals[index]
+  if(!ritual?.id) return
+
+  const { error } = await supabase
+    .from("rituals")
+    .update({ [field]: ritual[field] })
+    .eq("id", ritual.id)
+
+  if(error){
+    console.error("Erro ao salvar ritual:", error)
+  }
+}
+
+async function handleImageUpload(index:number, file:File){
+
+  const ritual = rituals[index]
+  if(!ritual?.id) return
+
+  const fileName = `${ritual.id}-${Date.now()}`
+
+  const { error: uploadError } = await supabase.storage
+    .from("rituals")
+    .upload(fileName, file)
+
+  if(uploadError){
+    console.error("Erro upload:", uploadError.message)
+    return
+  }
+
+  const { data } = supabase.storage
+    .from("rituals")
+    .getPublicUrl(fileName)
+
+  await updateRitualField(index, "image", data.publicUrl)
+} 
+
+async function deleteRitual(index: number) {
+  const ritual = rituals[index]
+
+  if (!ritual?.id) return
+
+  // 1️⃣ Se tiver imagem, remover do storage
+  if (ritual.image) {
+    const filePath = ritual.image.split("/ritual-images/")[1]
+
+    if (filePath) {
+      await supabase.storage
+        .from("ritual-images")
+        .remove([filePath])
+    }
+  }
+
+  // 2️⃣ Deletar do banco
+  const { error } = await supabase
+    .from("rituals")
+    .delete()
+    .eq("id", ritual.id)
+
+  if (error) {
+    console.error("Erro ao deletar ritual:", error)
+    return
+  }
+
+  // 3️⃣ Atualizar estado local
+  const updated = rituals.filter((_, i) => i !== index)
+  setRituals(updated)
+}
 
   return(
   <div
@@ -840,6 +1107,161 @@ async function saveDefenseValues() {
 </div>
 
       </div>
+
+      {/* ========================= */}
+{/* 🔮 RITUAIS */}
+{/* ========================= */}
+
+<div className="bg-neutral-900/80 backdrop-blur p-4 rounded-xl border border-purple-700 mt-6">
+
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-lg text-purple-400">Rituais</h2>
+
+    <button
+      onClick={addRitual}
+      className="bg-purple-700 hover:bg-purple-600 px-3 py-1 rounded text-sm"
+    >
+      + Adicionar Ritual
+    </button>
+  </div>
+
+  {rituals.map((ritual, index) => (
+    <div
+      key={ritual.id || index}
+      className="border border-neutral-800 rounded-lg p-4 mb-4 bg-black/40"
+    >
+      <div className="flex justify-end mb-2">
+  <button
+    onClick={() => deleteRitual(index)}
+    className="text-red-500 hover:text-red-400 text-xs"
+  >
+    🗑 Deletar Ritual
+  </button>
+</div>
+
+      {/* 🔥 CABEÇALHO */}
+      <div className="flex gap-4">
+
+        {/* 🖼 IMAGEM */}
+        <div className="flex flex-col items-center gap-2">
+          {ritual.image ? (
+            <img
+              src={ritual.image}
+              alt="Ritual"
+              className="w-24 h-24 object-cover rounded border border-purple-700"
+            />
+          ) : (
+            <div className="w-24 h-24 bg-neutral-800 rounded border border-dashed border-neutral-600 flex items-center justify-center text-xs opacity-50">
+              Sem imagem
+            </div>
+          )}
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files?.[0]) {
+                uploadRitualImage(index, e.target.files[0])
+              }
+            }}
+            className="text-xs"
+          />
+        </div>
+
+        {/* 📛 NOME + DESCRIÇÃO */}
+        <div className="flex-1 flex flex-col gap-2">
+
+          <input
+            type="text"
+            placeholder="Nome do Ritual"
+            value={ritual.name || ""}
+            onChange={(e) =>
+              updateRitualField(index, "name", e.target.value)}
+              onBlur={()=> saveRitualField(index, "name")}
+            className="bg-black border border-purple-700 rounded px-2 py-1"
+          />
+
+          <textarea
+            placeholder="Descrição"
+            value={ritual.description}
+            onChange={(e) =>
+              updateRitualField(index, "description", e.target.value)
+            }
+            className="bg-black border border-purple-700 rounded px-2 py-1 h-20 resize-none"
+          />
+
+        </div>
+      </div>
+
+      {/* 📊 CAMPOS INFERIORES */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+
+        <input
+          type="text"
+          placeholder="Elemento"
+          value={ritual.element}
+          onChange={(e) =>
+            updateRitualField(index, "element", e.target.value)
+          }
+          className="bg-black border border-purple-700 rounded px-2 py-1 text-sm"
+        />
+
+        <input
+          type="text"
+          placeholder="Execução"
+          value={ritual.execution}
+          onChange={(e) =>
+            updateRitualField(index, "execution", e.target.value)
+          }
+          className="bg-black border border-purple-700 rounded px-2 py-1 text-sm"
+        />
+
+        <input
+          type="text"
+          placeholder="Alcance"
+          value={ritual.range}
+          onChange={(e) =>
+            updateRitualField(index, "range", e.target.value)
+          }
+          className="bg-black border border-purple-700 rounded px-2 py-1 text-sm"
+        />
+
+        <input
+          type="text"
+          placeholder="Alvo"
+          value={ritual.target}
+          onChange={(e) =>
+            updateRitualField(index, "target", e.target.value)
+          }
+          className="bg-black border border-purple-700 rounded px-2 py-1 text-sm"
+        />
+
+        <input
+          type="text"
+          placeholder="Duração"
+          value={ritual.duration}
+          onChange={(e) =>
+            updateRitualField(index, "duration", e.target.value)
+          }
+          className="bg-black border border-purple-700 rounded px-2 py-1 text-sm"
+        />
+
+        <input
+          type="text"
+          placeholder="Resistência"
+          value={ritual.resistance}
+          onChange={(e) =>
+            updateRitualField(index, "resistance", e.target.value)
+          }
+          className="bg-black border border-purple-700 rounded px-2 py-1 text-sm"
+        />
+
+      </div>
+
+    </div>
+  ))}
+
+</div>
       
       {/* 🎲 Sala Multiplayer */}
 <div className="mb-4 flex gap-2 items-center">
