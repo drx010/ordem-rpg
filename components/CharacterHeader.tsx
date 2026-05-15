@@ -13,6 +13,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
   const [name, setName] = useState("")
   const [charClass, setCharClass] = useState("")
   const [image, setImage] = useState("")
+  const [nex, setNex] = useState(0)
 
   const [hp, setHp] = useState(30)
   const [hpMax, setHpMax] = useState(30)
@@ -61,6 +62,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
     setName(char.name || "")
     setCharClass(char.char_class || "")
     setImage(char.image || "")
+    setNex(char.nex ?? 0)
 
     setHp(char.hp ?? 30)
     setHpMax(char.hp_max ?? 30)
@@ -79,6 +81,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
         name,
         char_class: charClass,
         image,
+        nex,
         hp,
         hp_max: hpMax,
         sanity,
@@ -100,6 +103,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
       name,
       char_class: charClass,
       image,
+      nex,
       hp,
       hp_max: hpMax,
       sanity,
@@ -250,13 +254,45 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
       </div>
 
       {/* INPUTS */}
-      <input value={name} onChange={(e)=>setName(e.target.value)}
-        placeholder="Nome"
-        className="mb-2 bg-black border p-1 w-full"/>
+      <div className="grid grid-cols-3 gap-3 mb-3">
 
-      <input value={charClass} onChange={(e)=>setCharClass(e.target.value)}
-        placeholder="Classe"
-        className="mb-2 bg-black border p-1 w-full"/>
+  {/* Nome */}
+  <div>
+    <label className="text-xs text-zinc-400">Nome</label>
+    <input
+      value={name}
+      onChange={(e)=>setName(e.target.value)}
+      className="bg-black border border-zinc-700 p-2 w-full rounded text-sm focus:border-sky-500 focus:outline-none"
+    />
+  </div>
+
+  {/* Classe */}
+  <div>
+    <label className="text-xs text-zinc-400">Classe</label>
+    <input
+      value={charClass}
+      onChange={(e)=>setCharClass(e.target.value)}
+      className="bg-black border border-zinc-700 p-2 w-full rounded text-sm focus:border-sky-500 focus:outline-none"
+    />
+  </div>
+
+  {/* NEX */}
+  <div>
+    <label className="text-xs text-zinc-400">NEX</label>
+    <div className="relative">
+      <input
+        type="number"
+        value={nex}
+        onChange={(e)=>setNex(Number(e.target.value))}
+        className="bg-black border border-purple-800 p-2 w-full rounded text-sm text-purple-400 font-bold focus:border-purple-500 focus:outline-none"
+      />
+      <span className="absolute right-2 top-2 text-purple-500 text-sm font-bold">
+        %
+      </span>
+    </div>
+  </div>
+
+</div>
 
       <input type="file" onChange={uploadImage} className="mb-2"/>
 

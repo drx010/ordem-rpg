@@ -5,12 +5,12 @@ const httpServer = createServer()
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "*"
+    origin: "*",
+    methods: ["GET", "POST"]
   }
 })
 
 io.on("connection", (socket) => {
-
   console.log("Novo jogador conectado")
 
   socket.on("joinRoom", (roomCode) => {
@@ -26,11 +26,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Jogador saiu")
   })
-
 })
 
 const PORT = process.env.PORT || 3001
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, "0.0.0.0", () => {
   console.log("Servidor rodando na porta", PORT)
 })

@@ -134,22 +134,14 @@ useEffect(() => {
 }, [defensePassive, defenseCounter, defenseDodge])
 
 useEffect(() => {
-  if (!selectedCharacter) return
+  if (!selectedCharacter?.id) return
 
   setHistory(selectedCharacter.history || "")
   setNotes(selectedCharacter.notes || "")
 
-  setRituals(selectedCharacter.rituals || [])
+  setRituals(selectedCharacter.id)
 
 }, [selectedCharacter])
-
-useEffect(() => {
-
-  if(!selectedCharacter) return
-
-  saveRituals(rituals)
-
-}, [rituals])
 
   async function loadInventory(characterId:string){
     const { data } = await supabase
@@ -351,23 +343,6 @@ async function saveDefenseValues() {
   if(!user){
     return <Auth />
   }
-
-  async function saveRituals(updatedRituals:any[]) {
-
-  if(!selectedCharacter) return
-
-  const { error } = await supabase
-    .from("characters")
-    .update({
-      rituals: updatedRituals
-    })
-    .eq("id", selectedCharacter.id)
-
-  if(error){
-    console.error("Erro ao salvar rituais:", error)
-  }
-
-}
 
 async function loadRituals(characterId: string){
 
