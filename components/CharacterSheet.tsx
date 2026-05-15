@@ -133,16 +133,6 @@ useEffect(() => {
 
 }, [defensePassive, defenseCounter, defenseDodge])
 
-useEffect(() => {
-  if (!selectedCharacter?.id) return
-
-  setHistory(selectedCharacter.history || "")
-  setNotes(selectedCharacter.notes || "")
-
-  setRituals(selectedCharacter.id)
-
-}, [selectedCharacter])
-
   async function loadInventory(characterId:string){
     const { data } = await supabase
       .from("inventory")
@@ -344,19 +334,26 @@ async function saveDefenseValues() {
     return <Auth />
   }
 
-async function loadRituals(characterId: string){
+async function loadRituals(characterId: string) {
+  try {
+    const { data, error } = await supabase
+      .from("rituals")
+      .select("*")
+      .eq("character_id", characterId)
+      .order("created_at", { ascending: true })
 
-  const { data, error } = await supabase
-    .from("rituals")
-    .select("*")
-    .eq("character_id", characterId)
+    if (error) {
+      console.error(error)
+      setRituals([])
+      return
+    }
 
-  if(error){
-    console.error("Erro ao carregar rituais:", error)
-    return
+    setRituals(Array.isArray(data) ? data : [])
+
+  } catch (err) {
+    console.error("Erro inesperado:", err)
+    setRituals([])
   }
-
-  setRituals(data || [])
 }
 
 async function addRitual(){
@@ -1100,7 +1097,7 @@ async function deleteRitual(index: number) {
     </button>
   </div>
 
-  {rituals.map((ritual, index) => (
+  {Array.isArray(rituals) && rituals.map((ritual, index) => (
     <div
       key={ritual.id || index}
       className="border border-neutral-800 rounded-lg p-4 mb-4 bg-black/40"
