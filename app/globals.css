@@ -14,8 +14,8 @@ body {
 }
 
 /* 🔴 GLOW */
-.sky-glow {
-  box-shadow: 0 0 10px rgba(9, 83, 167, 0.4);
+.red-glow {
+  box-shadow: 0 0 10px rgba(110, 2, 2, 0.6);
 }
 
 /* ========================= */

@@ -2,8 +2,7 @@
 
 import { supabase } from "../lib/supabase"
 import Auth from "./Auth"
-import { useEffect, useState } from "react"
-import { socket } from "../lib/socket"
+import { useEffect, useState } from "react" 
 import DiceRoller from "./DiceRoller"
 import CharacterHeader from "./CharacterHeader"
 import DiceLog from "./DiceLog"
@@ -79,15 +78,30 @@ const [equipment, setEquipment] = useState<{
   const [roomCode, setRoomCode] = useState("")
   const [connectedRoom, setConnectedRoom] = useState("")
 
-  useEffect(() => {
-  socket.on("diceRolled", (data) => {
-    setLogs(prev => [data, ...prev])
-  })
+
+useEffect(() => {
+  if (!connectedRoom) return
+
+  const channel = supabase
+    .channel("dice-room")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "dice_rolls",
+        filter: `room_code=eq.${connectedRoom}`
+      },
+      (payload) => {
+        setLogs((prev) => [payload.new.result, ...prev])
+      }
+    )
+    .subscribe()
 
   return () => {
-    socket.off("diceRolled")
+    supabase.removeChannel(channel)
   }
-}, [])
+}, [connectedRoom])
 
 useEffect(() => {
   if(!selectedCharacter) return
@@ -96,8 +110,7 @@ useEffect(() => {
   setNotes(selectedCharacter.notes || "")
   setDefensePassive(selectedCharacter.defense_passive || 0)
   setDefenseCounter(selectedCharacter.defense_counter || 0)
-  setDefenseDodge(selectedCharacter.defense_dodge || 0)
-  setRituals(selectedCharacter.rituals || [])
+  setDefenseDodge(selectedCharacter.defense_dodge || 0) 
 
     if(prevHP !== null && selectedCharacter.hp < prevHP){
       setDamageFlash(true)
@@ -117,14 +130,20 @@ useEffect(() => {
     }
   }, [selectedCharacter])
 
+  useEffect(() => {
+  if (selectedCharacter?.id) {
+    loadRituals(selectedCharacter.id)
+  }
+}, [selectedCharacter])
+
   function joinRoom() {
   if (!roomCode) return
 
   console.log("Entrando na sala:", roomCode)
 
-  socket.emit("joinRoom", roomCode)
-  setConnectedRoom(roomCode)
+  setConnectedRoom(roomCode) 
 }
+
  useEffect(() => {
 
   if(!selectedCharacter) return
@@ -275,7 +294,7 @@ async function updateCharacterField(field:string, value:number){
       setSelectedItem(data[0])
     }
   }
-  function handleRoll(roll:any){
+async function handleRoll(roll: any) {
   const data = {
     formula: roll.formula,
     rolls: roll.rolls,
@@ -283,11 +302,21 @@ async function updateCharacterField(field:string, value:number){
     total: roll.total
   }
 
-  if(connectedRoom){
-    // Só envia para sala
-    socket.emit("rollDice", { roomCode: connectedRoom, data })
-  } else {
-    // Se não estiver em sala, adiciona localmente
+  if (connectedRoom) {
+    const { error } = await supabase
+      .from("dice_rolls")
+      .insert([
+        {
+          room_code: connectedRoom,
+          player_name: selectedCharacter?.name || "Jogador",
+          result: data
+        }
+      ])
+
+    if (error) {
+      console.error("Erro ao inserir rolagem:", error)
+    }
+  } else { 
     setLogs(prev => [data, ...prev])
   }
 }
@@ -572,7 +601,7 @@ async function deleteRitual(index: number) {
     <div className="flex justify-end mb-4">
       <button
         onClick={handleLogout}
-        className="bg-sky-800 hover:bg-sky-700 px-4 py-2 rounded text-sm border border-sky-500"
+        className="bg-red-800 hover:bg-red-700 px-4 py-2 rounded text-sm border border-red-500"
       >
         Sair
       </button>
@@ -620,15 +649,15 @@ async function deleteRitual(index: number) {
 
     {/* 💥 FLASH DANO */}
     {damageFlash && (
-      <div className="absolute inset-0 bg-sky-600/40 z-30 animate-pulse rounded-lg"/>
+      <div className="absolute inset-0 bg-red-600/40 z-30 animate-pulse rounded-lg"/>
     )}
 
     {/* 🔥 BORDA DINÂMICA */}
     <div className={`
       absolute inset-0 rounded-lg border transition-all duration-300
       ${selectedCharacter?.hp < selectedCharacter?.hp_max * 0.3
-        ? "border-sky-600 low-hp"
-        : "border-sky-700"}
+        ? "border-white-600 low-hp"
+        : "border-white-700"}
     `}/>
 
     {/* 🎬 IMAGEM */}
@@ -658,12 +687,12 @@ async function deleteRitual(index: number) {
     {/* 🧠 HUD */}
     <div className="absolute bottom-0 w-full p-3">
 
-<div className="text-[10px] tracking-[3px] text-sky-700 mb-1">
+<div className="text-[10px] tracking-[3px] text-yellow-700 mb-1">
   ARQUIVO CONFIDENCIAL
 </div>
 
       <h2 className="
-  text-sky-500 
+  text-white-500 
   text-3xl 
   tracking-[6px] 
   font-extrabold 
@@ -690,7 +719,7 @@ async function deleteRitual(index: number) {
         type="number"
         value={selectedCharacter?.hp || 0}
         onChange={(e)=>updateCharacterField("hp", Number(e.target.value))}
-        className="w-12 bg-black border border-sky-700 text-center rounded"
+        className="w-12 bg-black border border-white-700 text-center rounded"
       />
 
       <span>/</span>
@@ -700,7 +729,7 @@ async function deleteRitual(index: number) {
         type="number"
         value={selectedCharacter?.hp_max || 0}
         onChange={(e)=>updateCharacterField("hp_max", Number(e.target.value))}
-        className="w-12 bg-black border border-sky-500 text-center rounded"
+        className="w-12 bg-black border border-white-500 text-center rounded"
       />
 
     </div>
@@ -709,14 +738,14 @@ async function deleteRitual(index: number) {
   <div className="
   h-4
   bg-zinc-950
-  border border-sky-900
+  border border-red-900
   relative
   overflow-hidden
   rounded-sm
 ">
-  <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(90deg,transparent,transparent_8px,rgba(0, 119, 255, 0.4)_9px)]"/>
+  <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(90deg,transparent,transparent_8px,rgba(255, 0, 0, 0.4)_9px)]"/>
     <div
-  className="h-full bg-sky-700 transition-all duration-500"
+  className="h-full bg-red-700 transition-all duration-500"
       style={{
         width: `${(selectedCharacter?.hp / selectedCharacter?.hp_max) * 100}%`
       }}
@@ -736,7 +765,7 @@ async function deleteRitual(index: number) {
       </div>
 
       {/* ⚡ ENERGIA */}
-      <div className="h-3 bg-zinc-950 border border-yellow-900 overflow-hidden rounded-sm relative">
+      <div className="h-3 bg-zinc-950 border border-yellow-500 overflow-hidden rounded-sm relative">
         <div className={`
           h-full bg-yellow-400 transition-all
           ${selectedCharacter?.energy < selectedCharacter?.energy_max * 0.3 ? "low-energy" : ""}
@@ -842,7 +871,7 @@ async function deleteRitual(index: number) {
 
     {/* 📖 HISTÓRIA */}
 <div className="w-full mt-4">
-  <h3 className="text-sky-500 text-sm mb-1">História</h3>
+  <h3 className="text-white-500 text-sm mb-1">História</h3>
 <textarea
   rows={5}
   value={history}
@@ -851,13 +880,13 @@ async function deleteRitual(index: number) {
   }}
   onBlur={saveCharacterDetails}
     placeholder="Conte a história do personagem..."
-    className="w-full bg-black border border-sky-800 rounded p-2 text-xs resize-none focus:outline-none focus:border-sky-500"
+    className="w-full bg-black border border-gray-800 rounded p-2 text-xs resize-none focus:outline-none focus:border-sky-500"
   />
 </div>
 
 {/* 🧠 OBSERVAÇÕES */}
 <div className="w-full mt-3">
-  <h3 className="text-sky-500 text-sm mb-1">Observações / Descrição</h3>
+  <h3 className="text-white-500 text-sm mb-1">Observações / Descrição</h3>
 <textarea
   rows={5}
   value={notes}
@@ -866,7 +895,7 @@ async function deleteRitual(index: number) {
   }}
   onBlur={saveCharacterDetails}
     placeholder="Detalhes, personalidade, anotações..."
-    className="w-full bg-black border border-sky-800 rounded p-2 text-xs resize-none focus:outline-none focus:border-sky-500"
+    className="w-full bg-black border border-gray-800 rounded p-2 text-xs resize-none focus:outline-none focus:border-sky-500"
   />
 </div>
 
@@ -874,21 +903,21 @@ async function deleteRitual(index: number) {
 </div>
 
 {/* INVENTÁRIO */}
-<div className="absolute inset-0 pointer-events-none opacity-10 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0, 102, 255, 0.2)_3px)]"/>
+<div className="absolute inset-0 pointer-events-none opacity-10 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,hsla(39, 100%, 16%, 0.20)_3px)]"/>
 <div className="
   bg-gradient-to-b from-zinc-950/80 to-black/80 backdrop-blur-sm
   p-5
   rounded-2xl
-  border-2 border-sky-800
-  shadow-[0_0_12px_rgba(56,189,248,0.6)]
+  border-2 border-yellow-800
+  shadow-[0_0_12px_rgba(51,100,50,0.5)]
   relative
   overflow-hidden
 ">
 
   {/* EQUIPAMENTOS */}
   <div className="mb-4 grid grid-cols-3 gap-2">
-    <div className="bg-black border border-sky-700 p-2 text-center">
-      <p className="text-xs text-sky-400">ARMA</p>
+    <div className="bg-black border border-white-700 p-2 text-center">
+      <p className="text-xs text-white-400">ARMA</p>
       {equipment.weapon && <img src={equipment.weapon.image} className="h-12 mx-auto object-contain"/>}
     </div>
 
@@ -907,11 +936,11 @@ async function deleteRitual(index: number) {
 <div className="
   w-full aspect-square mb-5
   bg-gradient-to-br from-zinc-950 to-black
-  border-2 border-sky-800
+  border-2 border-yellow-800
   rounded-2xl
   relative
   overflow-hidden
-  shadow-[0_0_12px_rgba(56,189,248,0.6)]
+  shadow-[0_0_12px_rgba(39,100,16,0.1)]
 ">
 
   {selectedItem && (
@@ -924,7 +953,7 @@ async function deleteRitual(index: number) {
 
       {/* BOTÕES EQUIPAR */}
       <div className="absolute top-2 right-2 flex flex-col gap-1">
-        <button onClick={()=>handleEquipItem("weapon")} className="bg-sky-700 px-2 text-xs">Arma</button>
+        <button onClick={()=>handleEquipItem("weapon")} className="bg-white-700 px-2 text-xs">Arma</button>
         <button onClick={()=>handleEquipItem("armor")} className="bg-blue-700 px-2 text-xs">Armadura</button>
         <button onClick={()=>handleEquipItem("accessory")} className="bg-purple-700 px-2 text-xs">Acessório</button>
       </div>
@@ -933,12 +962,12 @@ async function deleteRitual(index: number) {
       <div className="
   absolute bottom-3 left-0 w-full
   text-center
-  text-sky-500
+  text-white-500
   font-bold
   tracking-widest
   uppercase
   text-sm
-  shadow-[0_0_12px_rgba(56,189,248,0.6)]
+  shadow-[0_0_12px_rgba(0,0,0,0.0)]
   z-10
 ">
         {selectedItem.name}
@@ -952,12 +981,12 @@ async function deleteRitual(index: number) {
   bg-zinc-900/95
   px-3 py-2
   rounded-lg
-  border border-sky-800
+  border border-gray-800
   shadow-[0_0_12px_rgba(56,189,248,0.6)]
   font-mono
 ">
 
-        <p className="text-sky-400 uppercase">
+        <p className="text-gray-400 uppercase">
           {selectedItem.type || "item"}
         </p>
 
@@ -989,14 +1018,14 @@ async function deleteRitual(index: number) {
       <input
         value={editItem.name || ""}
         onChange={(e)=>setEditItem({...editItem, name: e.target.value})}
-        className="w-full bg-black p-2 border border-sky-700"
+        className="w-full bg-black p-2 border border-yellow-700"
         placeholder="Nome"
       />
 
       <select
         value={editItem.type || "item"}
         onChange={(e)=>setEditItem({...editItem, type: e.target.value})}
-        className="w-full bg-black p-2 border border-sky-700"
+        className="w-full bg-black p-2 border border-yellow-700"
       >
         <option value="item">Item</option>
         <option value="weapon">Arma</option>
@@ -1004,15 +1033,15 @@ async function deleteRitual(index: number) {
 
       {editItem.type === "weapon" && (
         <>
-          <input placeholder="Dano" className="w-full bg-black p-2 border border-sky-700"
+          <input placeholder="Dano" className="w-full bg-black p-2 border border-red-500"
             value={editItem.damage || ""}
             onChange={(e)=>setEditItem({...editItem, damage: e.target.value})}
           />
-          <input placeholder="Crítico" className="w-full bg-black p-2 border border-sky-700"
+          <input placeholder="Crítico" className="w-full bg-black p-2 border border-red-900"
             value={editItem.crit || ""}
             onChange={(e)=>setEditItem({...editItem, crit: e.target.value})}
           />
-          <input placeholder="Alcance" className="w-full bg-black p-2 border border-sky-700"
+          <input placeholder="Alcance" className="w-full bg-black p-2 border border-yellow-700"
             value={editItem.range || ""}
             onChange={(e)=>setEditItem({...editItem, range: e.target.value})}
           />
@@ -1053,8 +1082,8 @@ async function deleteRitual(index: number) {
   bg-gradient-to-br from-zinc-900 to-black
   transition-all duration-200
   ${selectedItem === item
-    ? "border-2 border-sky-500 scale-105 shadow-[0_0_12px_rgba(56,189,248,0.6)]"
-    : "border border-sky-900 hover:border-sky-600 hover:shadow-[0_0_12px_rgba(56,189,248,0.6)"}
+    ? "border-2 border-yellow-500 scale-105 shadow-[0_0_12px_rgba(51,100,50,0.5)]"
+    : "border border-yellow-900 hover:border-yelow-600 hover:shadow-[0_0_12px_rgba(51,100,50,0.5)"}
 `}
       >
 

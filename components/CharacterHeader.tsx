@@ -74,24 +74,43 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
     onSelect && onSelect(char)
   }
 
-  function updateHUD(extra:any){
-    if(selectedId){
-      onSelect && onSelect({
-        id: selectedId,
-        name,
-        char_class: charClass,
-        image,
-        nex,
-        hp,
-        hp_max: hpMax,
-        sanity,
-        sanity_max: sanityMax,
-        energy,
-        energy_max: energyMax,
-        ...extra
-      })
-    }
+ useEffect(() => {
+  if (!selectedId) return
+
+  const channel = supabase
+    .channel(`character-${selectedId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "characters",
+        filter: `id=eq.${selectedId}`
+      },
+      (payload) => {
+        console.log("Realtime recebido:", payload)
+
+        const updated = payload.new as any
+        if (!updated) return
+
+        setHp(updated.hp)
+        setHpMax(updated.hp_max)
+
+        setSanity(updated.sanity)
+        setSanityMax(updated.sanity_max)
+
+        setEnergy(updated.energy)
+        setEnergyMax(updated.energy_max)
+      }
+    )
+    .subscribe((status) => {
+      console.log("Status do canal:", status)
+    })
+
+  return () => {
+    supabase.removeChannel(channel)
   }
+}, [selectedId])
 
   async function saveCharacter(){
     if(!user){
@@ -115,8 +134,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
 
     if(selectedId){
       await supabase.from("characters").update(payload).eq("id", selectedId)
-      updateHUD({})
-    }else{
+    }else{ 
       const { data } = await supabase.from("characters").insert([payload]).select()
 
       if(data && data[0]){
@@ -146,9 +164,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
 
     setImage(url)
 
-    await supabase.from("characters").update({ image: url }).eq("id", selectedId)
-
-    updateHUD({ image: url })
+    await supabase.from("characters").update({ image: url }).eq("id", selectedId) 
 
     loadCharacters()
   }
@@ -173,7 +189,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
 
       if(selectedId){
         supabase.from("characters").update({ hp: v }).eq("id", selectedId)
-        updateHUD({ hp: v })
+        
       }
 
       return v
@@ -187,7 +203,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
 
       if(selectedId){
         supabase.from("characters").update({ sanity: v }).eq("id", selectedId)
-        updateHUD({ sanity: v })
+        
       }
 
       return v
@@ -201,27 +217,29 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
 
       if(selectedId){
         supabase.from("characters").update({ energy: v }).eq("id", selectedId)
-        updateHUD({ energy: v })
+        
       }
 
       return v
     })
   }
 
-  function Bar({value,max,color}:{value:number,max:number,color:string}){
-    return(
-      <div className="w-full bg-zinc-800 h-4 rounded overflow-hidden">
-        <div
-          className={`h-4 transition-all duration-300 ${flash ? "opacity-70" : ""}`}
-          style={{
-            width: `${(value/max)*100}%`,
-            backgroundColor: color
-          }}
-        />
-      </div>
-    )
-  }
+  function Bar({ value, max, color }: { value: number, max: number, color: string }) {
 
+  const percentage = max > 0 ? (value / max) * 100 : 0
+
+  return (
+    <div className="w-full h-3 bg-zinc-800 rounded-full overflow-hidden shadow-inner">
+      <div
+        className={`h-3 rounded-full transition-all duration-300`}
+        style={{
+          width: `${percentage}%`,
+          backgroundColor: color
+        }}
+      />
+    </div>
+  )
+}
   function ControlButton({onClick, children, color}:any){
     return(
       <button
@@ -236,17 +254,16 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
   }
 
   return(
-    <div className={`bg-zinc-900 p-4 rounded-lg border border-sky-900 ${flash ? "bg-sky-900/40" : ""}`}>
+    <div className={`bg-zinc-900 p-4 rounded-lg border border-zinc-700 ${flash ? "bg-white-900/40" : ""}`}>
 
-      <audio ref={hitSound} src="/hit.mp3"/>
-      <audio ref={healSound} src="/heal.mp3"/>
+      <audio ref={hitSound} src="/hit.mp3"/> 
 
       {/* PERSONAGENS */}
       <div className="mb-4 flex gap-2 flex-wrap">
         {characters.map((char)=>(
           <div key={char.id} onClick={()=>selectCharacter(char)}
             className={`p-2 border cursor-pointer text-sm ${
-              selectedId===char.id?"border-sky-500":"border-zinc-700"
+              selectedId===char.id?"border-white-500":"border-zinc-700"
             }`}>
             {char.name}
           </div>
@@ -262,7 +279,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
     <input
       value={name}
       onChange={(e)=>setName(e.target.value)}
-      className="bg-black border border-zinc-700 p-2 w-full rounded text-sm focus:border-sky-500 focus:outline-none"
+      className="bg-black border border-zinc-700 p-2 w-full rounded text-sm focus:border-white-500 focus:outline-none"
     />
   </div>
 
@@ -272,7 +289,7 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
     <input
       value={charClass}
       onChange={(e)=>setCharClass(e.target.value)}
-      className="bg-black border border-zinc-700 p-2 w-full rounded text-sm focus:border-sky-500 focus:outline-none"
+      className="bg-black border border-yellow-700 p-2 w-full rounded text-sm text-yellow-400 focus:border-yellow-500 focus:outline-none"
     />
   </div>
 
@@ -300,99 +317,76 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
         className="bg-green-600 px-3 py-1 mb-4 rounded w-full hover:bg-green-500">
         Salvar personagem
       </button>
-      {/* ❤️ HP */}
-      <p className="text-sky-400 text-sm">HP {hp}/{hpMax}</p>
-      {isMaster && (
-  <input
-    type="number"
-    value={hpMax}
-    onChange={(e)=>{
-      const value = Number(e.target.value)
-      setHpMax(value)
 
-      if(selectedId){
-        supabase.from("characters")
-          .update({ hp_max: value })
-          .eq("id", selectedId)
+     {/* ================= HUD HORIZONTAL FULL WIDTH ================= */}
+<div className="mt-6 w-full">
+  <div className="flex w-full gap-4">
 
-        updateHUD({ hp_max: value })
-      }
-    }}
-    className="mb-2 w-20 bg-black border border-sky-800 p-1 text-xs"
-  />
-)}
-      <Bar value={hp} max={hpMax} color="red"/>
-      <div className="flex gap-2 mt-2 mb-3">
-        <ControlButton onClick={()=>changeHp(-5)} color="bg-sky-900">-5</ControlButton>
-        <ControlButton onClick={()=>changeHp(-1)} color="bg-sky-700">-1</ControlButton>
-        <ControlButton onClick={()=>changeHp(1)} color="bg-green-700">+1</ControlButton>
-        <ControlButton onClick={()=>changeHp(5)} color="bg-green-900">+5</ControlButton>
+    {/* ❤️ VIDA */}
+    <div className="flex-1 min-w-0">
+      <div className="flex justify-between text-[11px] mb-1">
+        <span className="text-red-400 uppercase tracking-wider">Vida</span>
+        <span className="font-semibold">{hp}/{hpMax}</span>
       </div>
 
-      {/* 🧠 SANIDADE */}
-      <p className="text-blue-400 text-sm">Sanidade {sanity}/{sanityMax}</p>
-      {isMaster && (
-  <input
-    type="number"
-    value={sanityMax}
-    onChange={(e)=>{
-      const value = Number(e.target.value)
-      setSanityMax(value)
+      <Bar value={hp} max={hpMax} color="#ef4444"/>
 
-      if(selectedId){
-        supabase.from("characters")
-          .update({ sanity_max: value })
-          .eq("id", selectedId)
-
-        updateHUD({ sanity_max: value })
-      }
-    }}
-    className="mb-2 w-20 bg-black border border-blue-800 p-1 text-xs"
-  />
-)}
-      <Bar value={sanity} max={sanityMax} color="blue"/>
-      <div className="flex gap-2 mt-2 mb-3">
-        <ControlButton onClick={()=>changeSanity(-5)} color="bg-blue-900">-5</ControlButton>
-        <ControlButton onClick={()=>changeSanity(-1)} color="bg-blue-700">-1</ControlButton>
-        <ControlButton onClick={()=>changeSanity(1)} color="bg-green-700">+1</ControlButton>
-        <ControlButton onClick={()=>changeSanity(5)} color="bg-green-900">+5</ControlButton>
+      <div className="flex justify-between mt-2 text-[10px]">
+        <div className="flex gap-1">
+          <ControlButton onClick={()=>changeHp(-5)} color="bg-red-900">-5</ControlButton>
+          <ControlButton onClick={()=>changeHp(-1)} color="bg-red-700">-1</ControlButton>
+        </div>
+        <div className="flex gap-1">
+          <ControlButton onClick={()=>changeHp(1)} color="bg-green-700">+1</ControlButton>
+          <ControlButton onClick={()=>changeHp(5)} color="bg-green-900">+5</ControlButton>
+        </div>
       </div>
-
-      {/* ⚡ ENERGIA */}
-<p className="text-yellow-400 text-sm">
-  Energia {energy}/{energyMax}
-</p>
-
-{isMaster && (
-  <input
-    type="number"
-    value={energyMax}
-    onChange={(e)=>{
-      const value = Number(e.target.value)
-      setEnergyMax(value)
-
-      if(selectedId){
-        supabase.from("characters")
-          .update({ energy_max: value })
-          .eq("id", selectedId)
-
-        updateHUD({ energy_max: value })
-      }
-    }}
-    className="mb-2 w-20 bg-black border border-yellow-800 p-1 text-xs"
-  />
-)}
-
-<Bar value={energy} max={energyMax} color="yellow"/>
-
-      <div className="flex gap-2 mt-2 mb-3">
-        <ControlButton onClick={()=>changeEnergy(-5)} color="bg-yellow-900">-5</ControlButton>
-        <ControlButton onClick={()=>changeEnergy(-1)} color="bg-yellow-700">-1</ControlButton>
-        <ControlButton onClick={()=>changeEnergy(1)} color="bg-green-700">+1</ControlButton>
-        <ControlButton onClick={()=>changeEnergy(5)} color="bg-green-900">+5</ControlButton>
-      </div>
-
     </div>
 
+    {/* 🧠 SANIDADE */}
+    <div className="flex-1 min-w-0">
+      <div className="flex justify-between text-[11px] mb-1">
+        <span className="text-blue-400 uppercase tracking-wider">Sanidade</span>
+        <span className="font-semibold">{sanity}/{sanityMax}</span>
+      </div>
+
+      <Bar value={sanity} max={sanityMax} color="#3b82f6"/>
+
+      <div className="flex justify-between mt-2 text-[10px]">
+        <div className="flex gap-1">
+          <ControlButton onClick={()=>changeSanity(-5)} color="bg-blue-900">-5</ControlButton>
+          <ControlButton onClick={()=>changeSanity(-1)} color="bg-blue-700">-1</ControlButton>
+        </div>
+        <div className="flex gap-1">
+          <ControlButton onClick={()=>changeSanity(1)} color="bg-green-700">+1</ControlButton>
+          <ControlButton onClick={()=>changeSanity(5)} color="bg-green-900">+5</ControlButton>
+        </div>
+      </div>
+    </div>
+
+    {/* ⚡ ENERGIA */}
+    <div className="flex-1 min-w-0">
+      <div className="flex justify-between text-[11px] mb-1">
+        <span className="text-yellow-400 uppercase tracking-wider">Energia</span>
+        <span className="font-semibold">{energy}/{energyMax}</span>
+      </div>
+
+      <Bar value={energy} max={energyMax} color="#eab308"/>
+
+      <div className="flex justify-between mt-2 text-[10px]">
+        <div className="flex gap-1">
+          <ControlButton onClick={()=>changeEnergy(-5)} color="bg-yellow-900">-5</ControlButton>
+          <ControlButton onClick={()=>changeEnergy(-1)} color="bg-yellow-700">-1</ControlButton>
+        </div>
+        <div className="flex gap-1">
+          <ControlButton onClick={()=>changeEnergy(1)} color="bg-green-700">+1</ControlButton>
+          <ControlButton onClick={()=>changeEnergy(5)} color="bg-green-900">+5</ControlButton>
+        </div>
+      </div>
+    </div> 
+
+       </div>
+     </div>
+    </div> 
   )
 }

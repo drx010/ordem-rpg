@@ -22,7 +22,7 @@ export default function SkillsPanel({
   const skills = [
     { attribute: "AGI", list: ["Acrobacia","Crime","Furtividade","Iniciativa","Pontaria","Reflexos"] },
     { attribute: "FOR", list: ["Atletismo","Luta"] },
-    { attribute: "INT", list: ["Ciências","Investigação","Medicina","Ocultismo","Profissão","Tecnologia"] },
+    { attribute: "INT", list: ["Ciências","Investigação","Medicina","Ocultismo","Profissão","Tecnologia","Escutar","Percepção"] },
     { attribute: "PRE", list: ["Adestramento","Diplomacia","Enganação","Intimidação","Intuição","Vontade"] },
     { attribute: "VIG", list: ["Fortitude"] }
   ]
