@@ -654,7 +654,7 @@ async function deleteRitual(index: number) {
   border-0
   ring-0
   outline-none
-  shadow-none
+  drop-shadow-[0_0_12px_rgba(0,0,0,1.9)]
   ${shake ? "animate-[shake_0.3s]" : ""}
   ${selectedCharacter?.sanity < selectedCharacter?.sanity_max * 0.3 ? "insanity" : ""}
 `}>
