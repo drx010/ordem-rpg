@@ -254,7 +254,8 @@ export default function CharacterHeader({ isMaster, onSelect }: any){
   }
 
   return(
-    <div className={`bg-zinc-900 p-4 rounded-lg border border-zinc-700 ${flash ? "bg-white-900/40" : ""}`}>
+    <div className={`bg-black/60 p-4 rounded-lg border border-zinc-700 ${flash ? "bg-red-900/40" : ""}`}>
+      
 
       <audio ref={hitSound} src="/hit.mp3"/> 
 

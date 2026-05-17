@@ -597,6 +597,28 @@ async function deleteRitual(index: number) {
   />
 </div>
 <div className="relative z-10 p-6">
+  {/* 🎲 Sala Multiplayer */}
+<div className="mb-4 flex gap-2 items-center">
+  <input
+    value={roomCode}
+    onChange={(e)=>setRoomCode(e.target.value)}
+    placeholder="Código da sala"
+    className="bg-black border border-purple-700 p-2 text-sm"
+  />
+
+  <button
+    onClick={joinRoom}
+    className="bg-purple-700 px-3 py-2 text-sm rounded"
+  >
+    Entrar na sala
+  </button>
+
+  {connectedRoom && (
+    <span className="text-purple-400 text-xs">
+      Conectado: {connectedRoom}
+    </span>
+  )}
+</div>  
     {/* 🔓 BOTÃO LOGOUT */}
     <div className="flex justify-end mb-4">
       <button
@@ -613,7 +635,7 @@ async function deleteRitual(index: number) {
     />
     <div className="grid grid-cols-3 gap-6 mt-6">
 
-        <div className="bg-zinc-900/70 backdrop-blur-sm p-4 rounded-lg border border-sky-900">
+        <div>
         <SkillsPanel 
   onRoll={handleRoll}
   characterId={selectedCharacter?.id}
@@ -624,7 +646,7 @@ async function deleteRitual(index: number) {
 {/* 🧍 PERSONAGEM */}
 <div className={`
   relative
-  p-6
+  p-1
   flex flex-col items-center
   min-h-[650px]
   overflow-hidden
@@ -743,7 +765,7 @@ async function deleteRitual(index: number) {
   overflow-hidden
   rounded-sm
 ">
-  <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(90deg,transparent,transparent_8px,rgba(255, 0, 0, 0.4)_9px)]"/>
+  <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(90deg,transparent,transparent_8px,rgba(225, 0, 0, 0.4)_9px)]"/>
     <div
   className="h-full bg-red-700 transition-all duration-500"
       style={{
@@ -911,32 +933,14 @@ async function deleteRitual(index: number) {
   border-2 border-yellow-800
   shadow-[0_0_12px_rgba(51,100,50,0.5)]
   relative
-  overflow-hidden
-">
+  overflow-hidden">
 
-  {/* EQUIPAMENTOS */}
-  <div className="mb-4 grid grid-cols-3 gap-2">
-    <div className="bg-black border border-white-700 p-2 text-center">
-      <p className="text-xs text-white-400">ARMA</p>
-      {equipment.weapon && <img src={equipment.weapon.image} className="h-12 mx-auto object-contain"/>}
-    </div>
-
-    <div className="bg-black border border-blue-700 p-2 text-center">
-      <p className="text-xs text-blue-400">ARMADURA</p>
-      {equipment.armor && <img src={equipment.armor.image} className="h-12 mx-auto object-contain"/>}
-    </div>
-
-    <div className="bg-black border border-purple-700 p-2 text-center">
-      <p className="text-xs text-purple-400">ACESSÓRIO</p>
-      {equipment.accessory && <img src={equipment.accessory.image} className="h-12 mx-auto object-contain"/>}
-    </div>
-  </div>
-
+  {/* EQUIPAMENTOS */} 
 {/* ITEM SELECIONADO */}
 <div className="
   w-full aspect-square mb-5
   bg-gradient-to-br from-zinc-950 to-black
-  border-2 border-yellow-800
+  border-2 border-zinc-800
   rounded-2xl
   relative
   overflow-hidden
@@ -949,20 +953,13 @@ async function deleteRitual(index: number) {
       <img 
         src={selectedItem.image} 
         className="w-full h-full object-contain p-4"
-      />
-
-      {/* BOTÕES EQUIPAR */}
-      <div className="absolute top-2 right-2 flex flex-col gap-1">
-        <button onClick={()=>handleEquipItem("weapon")} className="bg-white-700 px-2 text-xs">Arma</button>
-        <button onClick={()=>handleEquipItem("armor")} className="bg-blue-700 px-2 text-xs">Armadura</button>
-        <button onClick={()=>handleEquipItem("accessory")} className="bg-purple-700 px-2 text-xs">Acessório</button>
-      </div>
+      />  
 
       {/* NOME */}
       <div className="
   absolute bottom-3 left-0 w-full
   text-center
-  text-white-500
+  text-zinc-500
   font-bold
   tracking-widest
   uppercase
@@ -978,11 +975,11 @@ async function deleteRitual(index: number) {
   absolute bottom-3 right-3
   text-[10px]
   text-right
-  bg-zinc-900/95
+  bg-zinc-900
   px-3 py-2
   rounded-lg
-  border border-gray-800
-  shadow-[0_0_12px_rgba(56,189,248,0.6)]
+  border border-zinc-500
+  shadow-[0_0_12px_rgba(100,100,100,0.6)]
   font-mono
 ">
 
@@ -1018,14 +1015,14 @@ async function deleteRitual(index: number) {
       <input
         value={editItem.name || ""}
         onChange={(e)=>setEditItem({...editItem, name: e.target.value})}
-        className="w-full bg-black p-2 border border-yellow-700"
+        className="w-full bg-black p-2 border border-zinc-700"
         placeholder="Nome"
       />
 
       <select
         value={editItem.type || "item"}
         onChange={(e)=>setEditItem({...editItem, type: e.target.value})}
-        className="w-full bg-black p-2 border border-yellow-700"
+        className="w-full bg-black p-2 border border-zinc-700"
       >
         <option value="item">Item</option>
         <option value="weapon">Arma</option>
@@ -1041,7 +1038,7 @@ async function deleteRitual(index: number) {
             value={editItem.crit || ""}
             onChange={(e)=>setEditItem({...editItem, crit: e.target.value})}
           />
-          <input placeholder="Alcance" className="w-full bg-black p-2 border border-yellow-700"
+          <input placeholder="Alcance" className="w-full bg-black p-2 border border-zinc-700"
             value={editItem.range || ""}
             onChange={(e)=>setEditItem({...editItem, range: e.target.value})}
           />
@@ -1082,8 +1079,8 @@ async function deleteRitual(index: number) {
   bg-gradient-to-br from-zinc-900 to-black
   transition-all duration-200
   ${selectedItem === item
-    ? "border-2 border-yellow-500 scale-105 shadow-[0_0_12px_rgba(51,100,50,0.5)]"
-    : "border border-yellow-900 hover:border-yelow-600 hover:shadow-[0_0_12px_rgba(51,100,50,0.5)"}
+    ? "border-2 border-zinc-500 scale-105 shadow-[0_0_12px_rgba(51,100,50,0.5)]"
+    : "border border-zinc-900 hover:border-zinc-600 hover:shadow-[0_0_12px_rgba(100,100,100,0.9)"}
 `}
       >
 
@@ -1113,8 +1110,9 @@ async function deleteRitual(index: number) {
 {/* 🔮 RITUAIS */}
 {/* ========================= */}
 
-<div className="bg-neutral-900/80 backdrop-blur p-4 rounded-xl border border-purple-700 mt-6">
-
+<div className="bg-black/90 p-4 rounded-xl border border-purple-900 mt-6
+ drop-shadow-[0_0_12px_rgba(65,0,35,0.6)]
+ "> 
   <div className="flex justify-between items-center mb-4">
     <h2 className="text-lg text-purple-400">Rituais</h2>
 
@@ -1262,30 +1260,7 @@ async function deleteRitual(index: number) {
     </div>
   ))}
 
-</div>
-      
-      {/* 🎲 Sala Multiplayer */}
-<div className="mb-4 flex gap-2 items-center">
-  <input
-    value={roomCode}
-    onChange={(e)=>setRoomCode(e.target.value)}
-    placeholder="Código da sala"
-    className="bg-black border border-purple-700 p-2 text-sm"
-  />
-
-  <button
-    onClick={joinRoom}
-    className="bg-purple-700 px-3 py-2 text-sm rounded"
-  >
-    Entrar na sala
-  </button>
-
-  {connectedRoom && (
-    <span className="text-purple-400 text-xs">
-      Conectado: {connectedRoom}
-    </span>
-  )}
-</div>
+</div> 
 
 {/* 🎲 Rolagem */}
 <DiceRoller onRoll={handleRoll} />

@@ -142,24 +142,23 @@ export default function SkillsPanel({
 
   return (
   <div className="
-    relative
-    bg-black/70
-    backdrop-blur-md
-    border border-sky-900/60
-    p-5
-    rounded-md
-    shadow-[0_0_12px_rgba(56,189,248,0.6)]
-    overflow-hidden
+    bg-gradient-to-b from-zinc-950/80 to-black/80 backdrop-blur-sm
+  p-5
+  rounded-2xl
+  border-2 border-green-800
+  shadow-[0_0_12px_rgba(51,100,50,0.5)]
+  relative
+  overflow-hidden
   ">
 
       <h2 className="
   text-[11px]
   tracking-[4px]
   uppercase
-  text-sky-500
+  text-green-500
   mb-4
   pb-2
-  border-b border-sky-900
+  border-b border-red -500
   relative
 ">
   PERÍCIAS
@@ -168,7 +167,7 @@ export default function SkillsPanel({
       {skills.map((group) => (
         <div key={group.attribute} className="mb-4">
 
-          <h3 className="text-sm tracking-widest mb-2 text-sky-400 border-l-4 border-sky-700 pl-2">
+          <h3 className="text-sm tracking-widest mb-2 text-zinc-500 border-l-4 border-green-900 pl-2">
             {group.attribute}
           </h3>
 
@@ -189,8 +188,8 @@ export default function SkillsPanel({
     flex justify-between items-center
     text-xs
     py-1 px-2
-    border-b border-zinc-800
-    hover:bg-zinc-900/50
+    border-b border-zinc-900
+    hover:bg-green-900/50
     transition-all
     cursor-pointer
   "
@@ -208,12 +207,12 @@ export default function SkillsPanel({
                   className="
   w-12
   bg-black
-  border border-sky-800
+  border border-zinc-400
   text-center
   text-xs
   rounded-sm
   focus:outline-none
-  focus:border-sky-500
+  focus:border-zinc-500
 "
                 />
 
@@ -231,10 +230,10 @@ export default function SkillsPanel({
                 <button
                   onClick={() => rollDice(skill)}
                   className={`
-  text-sky-600 text-lg transition
+  text-zinc-600 text-lg transition
   ${isRolling
     ? "animate-spin scale-125"
-    : "hover:text-sky-400 hover:scale-110"}
+    : "hover:text-red-400 hover:scale-110"}
 `}
                 >
                   🎲
